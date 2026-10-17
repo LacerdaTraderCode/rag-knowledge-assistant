@@ -42,7 +42,10 @@ async def test_generator_sends_the_grounded_prompt_and_returns_the_answer(build_
     def handler(request: httpx2.Request) -> httpx2.Response:
         captured["headers"] = request.headers
         captured["body"] = json.loads(request.content)
-        return httpx2.Response(200, json={"content": [{"type": "text", "text": "Yes, cats are mammals [source 1]."}]})
+        return httpx2.Response(
+            200,
+            json={"content": [{"type": "text", "text": "Yes, cats are mammals [source 1]."}]},
+        )
 
     generator = ClaudeAnswerGenerator(
         api_key="test-key", model="test-model", client=build_mock_client(handler)
