@@ -11,8 +11,14 @@ from rag.vector_store import SearchResult
 
 def test_grounded_prompt_includes_every_source_and_the_question():
     results = [
-        SearchResult(chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."), score=0.9),
-        SearchResult(chunk=Chunk(document_id="doc-b", index=1, text="Dogs are mammals too."), score=0.5),
+        SearchResult(
+            chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."),
+            score=0.9,
+        ),
+        SearchResult(
+            chunk=Chunk(document_id="doc-b", index=1, text="Dogs are mammals too."),
+            score=0.5,
+        ),
     ]
 
     prompt = build_grounded_prompt("Are cats mammals?", results)
