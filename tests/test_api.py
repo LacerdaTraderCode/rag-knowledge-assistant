@@ -17,7 +17,11 @@ def client():
         )
 
     mock_http_client = httpx2.AsyncClient(transport=httpx2.MockTransport(handler))
-    generator = ClaudeAnswerGenerator(api_key="test-key", model="test-model", client=mock_http_client)
+    generator = ClaudeAnswerGenerator(
+        api_key="test-key",
+        model="test-model",
+        client=mock_http_client,
+    )
     pipeline = RagPipeline(generator=generator)
     app = create_app(pipeline=pipeline)
     return TestClient(app)
