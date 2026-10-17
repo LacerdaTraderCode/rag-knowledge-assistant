@@ -31,7 +31,10 @@ async def test_ingest_reports_how_many_chunks_it_created():
 
 async def test_ask_returns_the_generated_answer_with_matching_sources():
     def handler(request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, json={"content": [{"type": "text", "text": "Cats are mammals."}]})
+        return httpx2.Response(
+            200,
+            json={"content": [{"type": "text", "text": "Cats are mammals."}]},
+        )
 
     pipeline = _pipeline_with_generator(handler)
     pipeline.ingest("animals", "Cats are small domesticated feline mammals.")

@@ -11,8 +11,14 @@ from rag.vector_store import SearchResult
 
 def test_grounded_prompt_includes_every_source_and_the_question():
     results = [
-        SearchResult(chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."), score=0.9),
-        SearchResult(chunk=Chunk(document_id="doc-b", index=1, text="Dogs are mammals too."), score=0.5),
+        SearchResult(
+            chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."),
+            score=0.9,
+        ),
+        SearchResult(
+            chunk=Chunk(document_id="doc-b", index=1, text="Dogs are mammals too."),
+            score=0.5,
+        ),
     ]
 
     prompt = build_grounded_prompt("Are cats mammals?", results)
@@ -26,12 +32,20 @@ def test_grounded_prompt_includes_every_source_and_the_question():
 
 async def test_generator_sends_the_grounded_prompt_and_returns_the_answer(build_mock_client):
     captured = {}
-    results = [SearchResult(chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."), score=0.9)]
+    results = [
+        SearchResult(
+            chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."),
+            score=0.9,
+        ),
+    ]
 
     def handler(request: httpx2.Request) -> httpx2.Response:
         captured["headers"] = request.headers
         captured["body"] = json.loads(request.content)
-        return httpx2.Response(200, json={"content": [{"type": "text", "text": "Yes, cats are mammals [source 1]."}]})
+        return httpx2.Response(
+            200,
+            json={"content": [{"type": "text", "text": "Yes, cats are mammals [source 1]."}]},
+        )
 
     generator = ClaudeAnswerGenerator(
         api_key="test-key", model="test-model", client=build_mock_client(handler)
