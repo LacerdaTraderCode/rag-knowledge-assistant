@@ -44,7 +44,10 @@ def test_querying_before_any_document_is_ingested_returns_no_sources(client):
 
 
 def test_querying_after_ingesting_returns_a_cited_answer(client):
-    client.post("/documents", json={"document_id": "animals", "text": "Cats are small domesticated mammals."})
+    client.post(
+        "/documents",
+        json={"document_id": "animals", "text": "Cats are small domesticated mammals."},
+    )
 
     response = client.post("/query", json={"question": "Are cats mammals?"})
 
