@@ -32,7 +32,12 @@ def test_grounded_prompt_includes_every_source_and_the_question():
 
 async def test_generator_sends_the_grounded_prompt_and_returns_the_answer(build_mock_client):
     captured = {}
-    results = [SearchResult(chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."), score=0.9)]
+    results = [
+        SearchResult(
+            chunk=Chunk(document_id="doc-a", index=0, text="Cats are mammals."),
+            score=0.9,
+        ),
+    ]
 
     def handler(request: httpx2.Request) -> httpx2.Response:
         captured["headers"] = request.headers
