@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from app.main import create_app
 from rag.generation import ClaudeAnswerGenerator
 from rag.pipeline import RagPipeline
+from rag.vector_store import TfidfVectorStore
 
 
 @pytest.fixture
@@ -22,7 +23,7 @@ def client():
         model="test-model",
         client=mock_http_client,
     )
-    pipeline = RagPipeline(generator=generator)
+    pipeline = RagPipeline(generator=generator, store=TfidfVectorStore())
     app = create_app(pipeline=pipeline)
     return TestClient(app)
 
