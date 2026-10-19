@@ -4,12 +4,13 @@ import httpx2
 
 from rag.generation import ClaudeAnswerGenerator
 from rag.pipeline import RagPipeline
+from rag.vector_store import TfidfVectorStore
 
 
 def _pipeline_with_generator(handler) -> RagPipeline:
     client = httpx2.AsyncClient(transport=httpx2.MockTransport(handler))
     generator = ClaudeAnswerGenerator(api_key="test-key", model="test-model", client=client)
-    return RagPipeline(generator=generator)
+    return RagPipeline(generator=generator, store=TfidfVectorStore())
 
 
 async def test_asking_before_ingesting_anything_returns_no_results():
