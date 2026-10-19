@@ -2,6 +2,8 @@
 
 from pydantic import BaseModel
 
+from rag.vector_store import DEFAULT_TOP_K
+
 
 class IngestRequest(BaseModel):
     document_id: str
@@ -15,7 +17,7 @@ class IngestResponse(BaseModel):
 
 class QueryRequest(BaseModel):
     question: str
-    top_k: int = 3
+    top_k: int = DEFAULT_TOP_K
 
 
 class SourceOut(BaseModel):
