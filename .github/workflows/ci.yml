@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  FASTEMBED_CACHE_PATH: ${{ github.workspace }}/.cache/fastembed
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,3 +23,24 @@ jobs:
         run: ruff check . && ruff format --check .
       - name: Run tests
         run: pytest -v
+
+  retrieval-evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.FASTEMBED_CACHE_PATH }}
+          key: embedding-model-${{ hashFiles('rag/embeddings.py') }}
+      - name: Evaluate retrieval modes
+        shell: bash
+        env:
+          HF_HUB_DISABLE_PROGRESS_BARS: "1"
+        run: python -m evaluation.run --enforce-gate | tee -a "$GITHUB_STEP_SUMMARY"

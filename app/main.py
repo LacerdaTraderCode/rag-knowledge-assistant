@@ -1,27 +1,31 @@
 """FastAPI application exposing the RAG pipeline: ingest documents, then ask questions."""
 
-import os
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.pipeline_factory import build_default_pipeline
 from app.schemas import IngestRequest, IngestResponse, QueryRequest, QueryResponse, SourceOut
-from rag.generation import ClaudeAnswerGenerator
 from rag.pipeline import RagPipeline
-from rag.sample_corpus import load_sample_documents
+
+APP_VERSION = "1.1.0"
+
+
+@asynccontextmanager
+async def _build_pipeline_on_startup(app: FastAPI) -> AsyncIterator[None]:
+    # Building the pipeline loads the embedding model and connects to Qdrant, so
+    # it happens here and never at import time.
+    if app.state.pipeline is None:
+        app.state.pipeline = build_default_pipeline()
+    yield
 
 
 def create_app(pipeline: RagPipeline | None = None) -> FastAPI:
-    app = FastAPI(title="RAG Knowledge Assistant", version="1.0.0")
-
-    if pipeline is None:
-        generator = ClaudeAnswerGenerator(
-            api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
-            model=os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5"),
-        )
-        pipeline = RagPipeline(generator=generator)
-        for document_id, text in load_sample_documents().items():
-            pipeline.ingest(document_id, text)
-
+    """Create the API around `pipeline`, or around the environment-configured one at startup."""
+    app = FastAPI(
+        title="RAG Knowledge Assistant", version=APP_VERSION, lifespan=_build_pipeline_on_startup
+    )
     app.state.pipeline = pipeline
 
     @app.post("/documents", response_model=IngestResponse)

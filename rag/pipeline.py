@@ -1,10 +1,10 @@
-"""Wires chunking, the vector store, and answer generation into one pipeline."""
+"""Wires chunking, a vector store, and answer generation into one pipeline."""
 
 from dataclasses import dataclass
 
 from rag.chunking import split_into_chunks
 from rag.generation import ClaudeAnswerGenerator
-from rag.vector_store import TfidfVectorStore
+from rag.vector_store import DEFAULT_TOP_K, VectorStore
 
 
 @dataclass(frozen=True)
@@ -22,8 +22,8 @@ class Answer:
 
 
 class RagPipeline:
-    def __init__(self, generator: ClaudeAnswerGenerator, store: TfidfVectorStore | None = None):
-        self._store = store or TfidfVectorStore()
+    def __init__(self, generator: ClaudeAnswerGenerator, store: VectorStore):
+        self._store = store
         self._generator = generator
 
     def ingest(self, document_id: str, text: str) -> int:
@@ -32,7 +32,7 @@ class RagPipeline:
         self._store.add_documents(chunks)
         return len(chunks)
 
-    async def ask(self, question: str, top_k: int = 3) -> Answer:
+    async def ask(self, question: str, top_k: int = DEFAULT_TOP_K) -> Answer:
         results = self._store.search(question, top_k=top_k)
         if not results:
             return Answer(text="No indexed documents match this question.", sources=[])
